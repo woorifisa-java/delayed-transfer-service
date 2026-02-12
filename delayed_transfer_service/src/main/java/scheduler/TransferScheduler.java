@@ -2,11 +2,15 @@ package scheduler;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import domain.Transfer;
 import queue.TransferQueue;
 import repository.TransferRepository;
 
 public class TransferScheduler implements Runnable {
+	private static final Logger log = LoggerFactory.getLogger(TransferScheduler.class);
 
 	private volatile boolean running = true;
 
@@ -31,7 +35,7 @@ public class TransferScheduler implements Runnable {
 			List<Transfer> executables = transferRepository.findExecutable(now);
 
 			if (!executables.isEmpty()) {
-				System.out.println("[스케줄러] 실행 대상 건수: " + executables.size());
+				log.info("실행 대상 건수: " + executables.size() + "\n");
 			}
 
 			for (Transfer t : executables) {
@@ -60,14 +64,14 @@ public class TransferScheduler implements Runnable {
             return;
         }
 
-        System.out.println("[스케줄러] 이체번호 " + transfer.getTransferId()
-                + " 상태 변경: DELAYED → PREPARING");
+        log.info("거래 " + transfer.getTransferId()
+                +  "(고객 " + transfer.getUserId() + ")" + " 상태 변경: DELAYED -> PREPARING");
 
         // 큐에 넣기
         transferQueue.put(transfer);
 
-        System.out.println("[스케줄러] 이체번호 " + transfer.getTransferId()
-                + " 큐에 추가 완료 (현재 큐 크기: " + transferQueue.size() + ")");
+        log.info("거래 " + transfer.getTransferId()
+                + "(고객 " + transfer.getUserId() + ")" + " 큐에 추가 완료 (현재 큐 크기: " + transferQueue.size() + ")");
     }
 
 	public void stop() {
