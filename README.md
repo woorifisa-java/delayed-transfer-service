@@ -18,7 +18,7 @@ TransferCreator (이체 요청 생성)
     ↓
 TransferRepository (DB 역할)
     ↓
-TransferScheduler (상태 변경 락 제어, 주기적 실행 대상 스캔)
+TransferScheduler (주기적 실행 대상 스캔)
     ↓
 TransferQueue (BlockingQueue)
     ↓
