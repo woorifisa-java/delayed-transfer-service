@@ -158,6 +158,13 @@ lockManager.tryLock(userId);
 * `ReentrantLock` 기반
 * 한 유저의 이체는 순차적으로 처리
 
+<img width="572" height="482" alt="image" src="https://github.com/user-attachments/assets/7beb3b69-dec2-4fe3-98d9-2a7b2c85ab6e" />
+
+
+### User Lock 적용하지 않는 경우
+<img width="593" height="413" alt="image" src="https://github.com/user-attachments/assets/6a2662b9-6c31-462d-b2ed-f23a2eb0a3ef" />
+
+
 ---
 
 ## 7. 동기화 제어 구조 요약
