@@ -1,30 +1,30 @@
-# delayed-transfer-service
+# 🏦 delayed-transfer-service 💸
 
-본 프로젝트는 카카오페이 지연이체 서비스 구조를 단순화하여
-Java 멀티스레드 환경에서 발생할 수 있는 동시성 문제와
+본 프로젝트는 카카오페이 지연이체 서비스 구조를 단순화하여,
+Java 멀티스레드 환경에서 발생할 수 있는 동기화 문제와
 그에 대한 해결 전략을 구현한 실습 프로젝트입니다.
 
-참고 링크:
-[https://tech.kakaopay.com/post/ifkakao2024-delayed-transfer](https://tech.kakaopay.com/post/ifkakao2024-delayed-transfer)
+🔗 참고 링크:
+[KakaoPay Tech Blog: 지연이체 서비스 개발기: 은행 점검 시간 끝나면 송금해 드릴게요! (feat. 발표 후기)](https://tech.kakaopay.com/post/ifkakao2024-delayed-transfer)
 
 ---
 
-## 1.전체 아키텍처 흐름
+## 1. 전체 아키텍처 흐름
 
 ```
-[사용자]
+Main (사용자)
     ↓
 TransferCreator (이체 요청 생성)
     ↓
 TransferRepository (DB 역할)
     ↓
-TransferScheduler (주기적 실행 대상 스캔)
+TransferScheduler (상태 변경 락 제어, 주기적 실행 대상 스캔)
     ↓
 TransferQueue (BlockingQueue)
     ↓
 TransferConsumer (멀티 스레드 실행)
     ↓
-UserLockManager (유저 단위 동시성 제어)
+UserLockManager (유저 단위 락 제어)
 ```
 
 ---
@@ -97,49 +97,42 @@ DONE
 
 ---
 
-## 5. 동시성 이슈 시나리오
+## 5. 동기화 이슈 시나리오
 
-### 문제 상황 1 – 상태 체크 경쟁
+### 문제 상황 1 – Queue 동시 접근으로 인한 데이터 경쟁
 
-여러 스레드가 동시에 같은 이체를 확인할 경우:
+Consumer는 여러 스레드로 실행되며 동시에 Queue에서 이체 요청을 가져온다.
+이때 Queue가 thread-safe하지 않은 자료구조(예: ArrayList, LinkedList)였다면, 다음과 같은 문제가 발생할 수 있다.
 
 ```
-Thread-A: status == DELAYED 확인
-Thread-B: status == DELAYED 확인
+Consumer-1: queue에서 poll() 수행
+Consumer-2: 동시에 queue에서 poll() 수행
 ```
 
-두 스레드가 동시에 조건을 통과하면
-같은 이체가 두 번 실행될 수 있다.
+두 스레드가 동시에 Queue를 수정하면 내부 상태가 깨지거나,
+요청이 중복으로 처리되거나, 요청이 누락되는 문제가 발생할 수 있다.
 
-### 문제 상황 2 – 중복 Queue 적재
+### 문제 상황 2 – 동일 유저 요청의 동시 처리
+이 시스템은 Consumer를 2개 이상 실행하여 Queue에 들어온 이체 요청을 병렬 처리한다.
 
-스케줄러가 반복 실행되면서
-같은 이체를 여러 번 Queue에 넣는 문제가 발생할 수 있다.
+이때 Queue에는 서로 다른 유저 요청뿐 아니라,
+같은 유저(userId)의 요청이 여러 개 들어올 수 있다.
+
+```
+userA: 3건
+userB: 1건
+userC: 1건
+```
+이 경우 다음과 같은 상황이 발생할 수 있다.
+- Consumer-1이 userA의 이체를 처리 중
+- Consumer-2가 동시에 userA의 다른 이체를 꺼내 처리 시작
+
+즉, 같은 유저의 이체가 동시에 처리될 수 있으며, 이 경우 데이터 정합성이 깨질 수 있다.
 
 ---
 
-## 6. 동시성 해결 전략
-
-3단계 동시성 제어 구조를 적용하였다.
-
-### 1단계: synchronized
-
-```java
-public synchronized boolean markPreparing()
-```
-
-#### 이유
-
-* 상태 확인과 상태 변경이 동시에 수행되어야 함
-* 여러 스레드가 동시에 상태를 변경하는 상황 방지
-
-#### 역할
-
-* `DELAYED` 상태일 때만 `PREPARING`으로 변경
-* 이미 변경된 경우 false 반환
-* 동일 이체의 중복 Queue 등록 방지
-
-### 2단계: BlockingQueue
+## 6. 동기화 해결 전략
+### 해결 방법 1 - BlockingQueue
 
 ```java
 LinkedBlockingQueue
@@ -149,7 +142,7 @@ LinkedBlockingQueue
 * 하나의 Queue 원소는 하나의 스레드만 처리
 * 단, 같은 객체가 여러 번 들어가면 중복 실행 가능 → Scheduler에서 방지
 
-### 3단계: User 단위 Lock 적용
+### 해결 방법 2 - User 단위 Lock 적용
 
 ```java
 lockManager.tryLock(userId);
@@ -162,7 +155,7 @@ lockManager.tryLock(userId);
 
 ---
 
-## 7. 동시성 제어 구조 요약
+## 7. 동기화 제어 구조 요약
 
 | 제어 단계         | 목적              |
 | ------------- | --------------- |
