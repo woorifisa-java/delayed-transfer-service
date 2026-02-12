@@ -8,10 +8,10 @@ public interface UserLockManager {
 	/**
 	 * userId에 대한 lock 획득 시도
 	 *
-	 * @param userId 사용자 ID
-	 * @return true : lock 획득 성공 false : 이미 다른 스레드가 해당 user 실행 중
+	 * boolean->void를 사용하는 이유
+	 * boolean : lock동작 여부가 확실하지 않음, void lock()일 경우 해당 메서드는 리턴되면 lock이 정확히 동작하고 있음을 의미
 	 */
-	boolean tryLock(Long userId);
+	void lock(Long userId);
 
 	/**
 	 * userId에 대한 lock 해제

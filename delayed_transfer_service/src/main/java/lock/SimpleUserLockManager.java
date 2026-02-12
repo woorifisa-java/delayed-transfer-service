@@ -5,16 +5,17 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * userId 별로 ReentrantLock을 관리하는 간단한 LockManager 구현체
+ * ReentrantLock()
  */
 public class SimpleUserLockManager implements UserLockManager {
 
     private final ConcurrentHashMap<Long, ReentrantLock> lockMap = new ConcurrentHashMap<>();
 
     @Override
-    public boolean tryLock(Long userId) {
+    public void lock(Long userId) {
         ReentrantLock lock =
                 lockMap.computeIfAbsent(userId, id -> new ReentrantLock());
-        return lock.tryLock();
+        lock.lock();
     }
 
     @Override
