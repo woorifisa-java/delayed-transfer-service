@@ -1,9 +1,6 @@
 package delayed_transfer_service;
 
-import consumer.TransferConsumer;
 import consumer.TransferConsumerWithoutLock;
-import lock.SimpleUserLockManager;
-import lock.UserLockManager;
 import queue.TransferQueue;
 import repository.TransferRepository;
 import scheduler.TransferScheduler;
@@ -26,7 +23,6 @@ public class Main {
 		TransferQueue queue = new TransferQueue();
 		TransferCreator creator = new TransferCreator(repository);
 
-		UserLockManager lockManager = new SimpleUserLockManager();
 
 		// ------ 시나리오: 유저 3명 ------
 		// userA: 3건, userB: 1건, userC: 1건

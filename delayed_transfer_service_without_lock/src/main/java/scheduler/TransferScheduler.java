@@ -71,7 +71,7 @@ public class TransferScheduler implements Runnable {
         transferQueue.put(transfer);
 
         log.info("거래 " + transfer.getTransferId()
-                + "(고객 " + transfer.getUserId() + ")" + " 큐에 추가 완료 (현재 큐 크기: " + transferQueue.size() + ")");
+        + "(고객 " + transfer.getUserId() + ")" + " 큐에 추가 완료");
     }
 
 	public void stop() {

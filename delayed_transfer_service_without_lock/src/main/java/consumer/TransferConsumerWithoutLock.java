@@ -1,9 +1,13 @@
 package consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import domain.Transfer;
 import queue.TransferQueue;
 
 public class TransferConsumerWithoutLock implements Runnable {
+    private static final Logger log = LoggerFactory.getLogger(TransferConsumerWithoutLock.class);
 
     private final String name;
     private final TransferQueue queue;
@@ -16,10 +20,9 @@ public class TransferConsumerWithoutLock implements Runnable {
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
-
             Transfer transfer = null;
             Long userId = null;
-            boolean entered = false; // monitor enter 성공 여부
+            boolean entered = false;
 
             try {
                 // 1. 큐에서 작업 가져오기
@@ -30,35 +33,26 @@ public class TransferConsumerWithoutLock implements Runnable {
 
                 userId = transfer.getUserId();
 
-                // 2. 실행 진입 감지: 동시 실행 카운트 체크
                 int inflight = TransferConsumerMonitor.enter(userId);
                 entered = true;
 
-                
-
-                // 3. 실행
-                System.out.printf("[%s] T%d(%s) 실행 시작%n",
-                        name, transfer.getTransferId(), userId);
-                
                 if (inflight > 1) {
-                    System.out.println("---------------------------");
-                    System.out.printf(" ❗❗ userId = %d 동시 실행 %d건%n", userId, inflight);
-                    System.out.println("---------------------------");
+                    log.warn("❗❗ 거래 " + transfer.getTransferId() + "(고객 " + userId + ")" 
+                            + " 동시 실행 " + inflight + "건 발생");
                 }
 
-                simulateTransfer();
+                log.info("거래 " + transfer.getTransferId() + " 실행 시작");
 
+                simulateTransfer();
                 transfer.markDone();
 
-                System.out.printf("[%s] T%d(%s) DONE%n",
-                        name, transfer.getTransferId(), userId);
+                log.info("거래 " + transfer.getTransferId() + "(고객 " + userId + ")"
+                        + " 상태 변경: PREPARING -> DONE");
 
             } catch (InterruptedException e) {
-                // 인터럽트 복구 후 종료
                 Thread.currentThread().interrupt();
                 break;
             } finally {
-                // 4. monitor 정리
                 if (entered && userId != null) {
                     TransferConsumerMonitor.exit(userId);
                 }
@@ -66,7 +60,6 @@ public class TransferConsumerWithoutLock implements Runnable {
         }
     }
 
-    // 송금 실행 시뮬레이션
     private void simulateTransfer() throws InterruptedException {
         Thread.sleep(200);
     }
