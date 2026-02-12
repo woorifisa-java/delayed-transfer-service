@@ -78,7 +78,7 @@ public class TransferScheduler implements Runnable {
 		try {
 			Thread.sleep(ms);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
 	}
 }
