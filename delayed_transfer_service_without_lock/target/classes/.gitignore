@@ -1,7 +1,4 @@
-<<<<<<< Updated upstream:delayed_transfer_service_without_lock/target/classes/.gitignore
-=======
-/META-INF/
 /consumer/
+/META-INF/
 /scheduler/
->>>>>>> Stashed changes:delayed_transfer_service_withou_lock/target/classes/.gitignore
 /delayed_transfer_service/

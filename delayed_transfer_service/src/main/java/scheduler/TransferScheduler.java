@@ -65,13 +65,13 @@ public class TransferScheduler implements Runnable {
         }
 
         log.info("거래 " + transfer.getTransferId()
-                +  "(고객 " + transfer.getUserId() + ")" + " 상태 변경: DELAYED -> PREPARING");
+                +  " (고객 " + transfer.getUserId() + ")" + " 상태 변경: DELAYED -> PREPARING");
 
         // 큐에 넣기
         transferQueue.put(transfer);
 
         log.info("거래 " + transfer.getTransferId()
-                + "(고객 " + transfer.getUserId() + ")" + " 큐에 추가 완료");
+                + " (고객 " + transfer.getUserId() + ")" + " 큐에 추가 완료");
     }
 
 	public void stop() {
