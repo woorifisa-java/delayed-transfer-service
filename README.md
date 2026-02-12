@@ -99,20 +99,20 @@ DONE
 
 ## 5. 동기화 이슈 시나리오
 
-### 문제 상황 1 – Queue 동시 접근으로 인한 데이터 경쟁
+### 문제 상황 1 – 같은 거래를 두 Consumer가 동시에 실행
 
 Consumer는 여러 스레드로 실행되며 동시에 Queue에서 이체 요청을 가져온다.
 이때 Queue가 thread-safe하지 않은 자료구조(예: ArrayList, LinkedList)였다면, 다음과 같은 문제가 발생할 수 있다.
 
 ```
-Consumer-1: queue에서 poll() 수행
-Consumer-2: 동시에 queue에서 poll() 수행
+Consumer-1: userB의 거래 조회 → status == DELAYED 확인
+Consumer-2: userB의 거래 조회 → status == DELAYED 확인
 ```
 
-두 스레드가 동시에 Queue를 수정하면 내부 상태가 깨지거나,
-요청이 중복으로 처리되거나, 요청이 누락되는 문제가 발생할 수 있다.
+두 스레드가 동시에 같은 거래를 확인하고 실행하면
+같은 이체가 두 번 실행될 수 있다. (중복 송금 위험)
 
-### 문제 상황 2 – 동일 유저 요청의 동시 처리
+### 문제 상황 2 – 같은 유저의 여러 거래가 동시에 실행
 이 시스템은 Consumer를 2개 이상 실행하여 Queue에 들어온 이체 요청을 병렬 처리한다.
 
 이때 Queue에는 서로 다른 유저 요청뿐 아니라,
@@ -123,9 +123,15 @@ userA: 3건
 userB: 1건
 userC: 1건
 ```
+
+userA의 거래가 다음과 같이 3건 있다고 가정하자.
+```
+'가', '나', '다' (모두 DELAYED)
+```
+
 이 경우 다음과 같은 상황이 발생할 수 있다.
-- Consumer-1이 userA의 이체를 처리 중
-- Consumer-2가 동시에 userA의 다른 이체를 꺼내 처리 시작
+- Consumer-1이 userA의 '가' 이체를 처리 중
+- Consumer-2가 동시에 userA의 '나' 이체를 꺼내 처리 시작
 
 즉, 같은 유저의 이체가 동시에 처리될 수 있으며, 이 경우 데이터 정합성이 깨질 수 있다.
 
@@ -140,7 +146,6 @@ LinkedBlockingQueue
 
 * `take()`는 하나의 Consumer만 가져갈 수 있음
 * 하나의 Queue 원소는 하나의 스레드만 처리
-* 단, 같은 객체가 여러 번 들어가면 중복 실행 가능 → Scheduler에서 방지
 
 ### 해결 방법 2 - User 단위 Lock 적용
 
