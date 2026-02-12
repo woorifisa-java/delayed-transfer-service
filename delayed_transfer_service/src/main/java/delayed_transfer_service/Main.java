@@ -56,12 +56,21 @@ public class Main {
 //		Thread consumer1 = new Thread(new TransferConsumer("컨슈머-1", queue, lockManager), "컨슈머-1");
 //		Thread consumer2 = new Thread(new TransferConsumer("컨슈머-2", queue, lockManager), "컨슈머-2");
 
+<<<<<<< Updated upstream
 		// ====== 컨슈머 (withoutLock) 2개 시작 ======
 		Thread consumer1 = new Thread(new TransferConsumerWithoutLock("컨슈머-1", queue), "컨슈머-1");
 		Thread consumer2 = new Thread(new TransferConsumerWithoutLock("컨슈머-2", queue), "컨슈머-2");
 
         consumer1.start();
         consumer2.start();
+=======
+		// ------ 컨슈머 2개 시작 ------
+		Thread consumer1 = new Thread(new TransferConsumer("consumer-1", queue, lockManager), GREEN + "consumer-1" + RESET);
+		Thread consumer2 = new Thread(new TransferConsumer("consumer-2", queue, lockManager), PURPLE + "consumer-2" + RESET);
+		
+		consumer1.start();
+		consumer2.start();
+>>>>>>> Stashed changes
 
         // ====== 시연 시간 잠깐 대기 ======
         // (요청이 모두 처리될 시간을 줌)
