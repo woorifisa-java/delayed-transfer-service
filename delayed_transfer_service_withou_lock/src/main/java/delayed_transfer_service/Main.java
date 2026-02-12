@@ -1,6 +1,7 @@
 package delayed_transfer_service;
 
 import consumer.TransferConsumer;
+import consumer.TransferConsumerWithoutLock;
 import lock.SimpleUserLockManager;
 import lock.UserLockManager;
 import queue.TransferQueue;
