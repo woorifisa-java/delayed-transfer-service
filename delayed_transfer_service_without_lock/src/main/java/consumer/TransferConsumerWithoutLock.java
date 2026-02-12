@@ -41,7 +41,7 @@ public class TransferConsumerWithoutLock implements Runnable {
                             + " 동시 실행 " + inflight + "건 발생");
                 }
 
-                log.info("거래 " + transfer.getTransferId() + " 실행 시작");
+                log.info("거래 " + transfer.getTransferId() + "(고객 " + userId + ")" + " 실행 시작");
 
                 simulateTransfer();
                 transfer.markDone();
