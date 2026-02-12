@@ -2,12 +2,12 @@ package domain;
 
 public class Transfer {
 
-    private final long transferId;
-    private final long userId;
-    private final long bankOpenAt;
+    private final Long transferId;
+    private final Long userId;
+    private final Long bankOpenAt;
     private TransferStatus status;
 
-    public Transfer(long transferId, long userId, long bankOpenAt) {
+    public Transfer(Long transferId, Long userId, Long bankOpenAt) {
         this.transferId = transferId;
         this.userId = userId;
         this.bankOpenAt = bankOpenAt;
