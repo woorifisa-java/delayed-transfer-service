@@ -8,17 +8,17 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class SimpleUserLockManager implements UserLockManager {
 
-    private final ConcurrentHashMap<String, ReentrantLock> lockMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, ReentrantLock> lockMap = new ConcurrentHashMap<>();
 
     @Override
-    public boolean tryLock(String userId) {
+    public boolean tryLock(Long userId) {
         ReentrantLock lock =
                 lockMap.computeIfAbsent(userId, id -> new ReentrantLock());
         return lock.tryLock();
     }
 
     @Override
-    public void unlock(String userId) {
+    public void unlock(Long userId) {
         ReentrantLock lock = lockMap.get(userId);
         if (lock != null && lock.isHeldByCurrentThread()) {
             lock.unlock();
