@@ -1,6 +1,7 @@
 package delayed_transfer_service;
 
 import consumer.TransferConsumer;
+import consumer.TransferConsumerWithoutLock;
 import lock.SimpleUserLockManager;
 import lock.UserLockManager;
 import queue.TransferQueue;
@@ -51,9 +52,13 @@ public class Main {
         Thread schedulerThread = new Thread(scheduler, "스케줄러-1");
         schedulerThread.start();
 
-        // ====== 컨슈머 2개 시작 ======
-        Thread consumer1 = new Thread(new TransferConsumer("컨슈머-1", queue, lockManager), "컨슈머-1");
-        Thread consumer2 = new Thread(new TransferConsumer("컨슈머-2", queue, lockManager), "컨슈머-2");
+     // ====== 컨슈머 (withLock) 2개 시작 ======
+//		Thread consumer1 = new Thread(new TransferConsumer("컨슈머-1", queue, lockManager), "컨슈머-1");
+//		Thread consumer2 = new Thread(new TransferConsumer("컨슈머-2", queue, lockManager), "컨슈머-2");
+
+		// ====== 컨슈머 (withoutLock) 2개 시작 ======
+		Thread consumer1 = new Thread(new TransferConsumerWithoutLock("컨슈머-1", queue), "컨슈머-1");
+		Thread consumer2 = new Thread(new TransferConsumerWithoutLock("컨슈머-2", queue), "컨슈머-2");
 
         consumer1.start();
         consumer2.start();
