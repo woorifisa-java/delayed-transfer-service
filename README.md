@@ -16,7 +16,7 @@ Java 멀티스레드 환경에서 발생할 수 있는 동시성 문제와
     ↓
 TransferCreator (이체 요청 생성)
     ↓
-TransferRepository (DB 역할, In-Memory)
+TransferRepository (DB 역할)
     ↓
 TransferScheduler (주기적 실행 대상 스캔)
     ↓
@@ -37,7 +37,7 @@ UserLockManager (유저 단위 동시성 제어)
 
 * **Scheduler Thread 1개**
 
-  * 일정 주기로 실행 가능한 이체를 조회
+  * 일정 주기(200ms)로 실행 가능한 이체(지금시간 >= bankOpenAt)를 조회
   * 상태 변경 후 Queue에 등록
 
 * **Consumer Thread 2개**
@@ -67,13 +67,15 @@ UserLockManager (유저 단위 동시성 제어)
 
 ### 동작 과정
 
+은행 점검 종료 시간(`bankOpenAt`)은 요청 생성 시점 + 2초로 설정된다.
+
 1. 사용자들이 지연 이체 요청을 등록한다.
-2. 모든 요청은 `DELAYED` 상태로 저장된다.
-3. 2초 후, 스케줄러가 실행 가능한 이체를 조회한다.
-4. `DELAYED` 상태인 이체를 `PREPARING`으로 변경한 뒤 Queue에 넣는다.
+2. 모든 요청은 DELAYED 상태로 TransferRepository에 저장된다.
+3. 스케줄러는 0.2초마다 반복 실행되며, `now >= bankOpenAt`인 이체를 찾는다.
+4. 실행 가능한 이체를 찾으면, 해당 이체의 상태를 DELAYED → PREPARING으로 바꾼 뒤 Queue에 넣는다.
 5. Consumer 2개가 동시에 실행을 시작한다.
 6. 동일 userId의 이체는 Lock을 통해 동시에 실행되지 않도록 제어한다.
-7. 실행이 완료되면 상태를 `DONE`으로 변경한다.
+7. 실행이 완료되면 상태를 `DONE`으로 변경하고 Lock을 해제한다.
 
 ---
 
@@ -185,7 +187,7 @@ java -jar delayed-transfer-service.jar
 | 실제 카카오페이      | 본 프로젝트            |
 | ------------- | ----------------- |
 | Kafka         | BlockingQueue     |
-| Consumer 여러 대 | Consumer 2개       |
+| Consumer 3대 | Consumer 2대       |
 | User Lock     | ReentrantLock     |
 | DB            | ConcurrentHashMap |
 | 스케줄러          | Thread 기반 반복 실행   |
