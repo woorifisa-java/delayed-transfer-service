@@ -36,12 +36,13 @@ public class TransferConsumerWithoutLock implements Runnable {
                 int inflight = TransferConsumerMonitor.enter(userId);
                 entered = true;
 
+
+                log.info("거래 " + transfer.getTransferId() + "(고객 " + userId + ")" + " 실행 시작");
+                
                 if (inflight > 1) {
                     log.warn("❗❗ 거래 " + transfer.getTransferId() + "(고객 " + userId + ")" 
                             + " 동시 실행 " + inflight + "건 발생");
                 }
-
-                log.info("거래 " + transfer.getTransferId() + "(고객 " + userId + ")" + " 실행 시작");
 
                 simulateTransfer();
                 transfer.markDone();
