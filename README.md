@@ -105,8 +105,8 @@ Consumer는 여러 스레드로 실행되며 동시에 Queue에서 이체 요청
 이때 Queue가 thread-safe하지 않은 자료구조(예: ArrayList, LinkedList)였다면, 다음과 같은 문제가 발생할 수 있다.
 
 ```
-Consumer-1: userB의 거래 조회 → status == DELAYED 확인
-Consumer-2: userB의 거래 조회 → status == DELAYED 확인
+Consumer-1: userB의 거래 조회 → status == PREPARING 확인
+Consumer-2: userB의 거래 조회 → status == PREPARING 확인
 ```
 
 두 스레드가 동시에 같은 거래를 확인하고 실행하면
@@ -126,7 +126,7 @@ userC: 1건
 
 userA의 거래가 다음과 같이 3건 있다고 가정하자.
 ```
-'가', '나', '다' (모두 DELAYED)
+'가', '나', '다' (모두 PREPARING)
 ```
 
 이 경우 다음과 같은 상황이 발생할 수 있다.
