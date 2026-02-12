@@ -37,7 +37,7 @@ UserLockManager (유저 단위 락 제어)
 
 * **Scheduler Thread 1개**
 
-  * 일정 주기(200ms)로 실행 가능한 이체(지금시간 >= bankOpenAt)를 조회
+  * 일정 주기(200ms)로 실행 가능한 이체(`지금시간 >= bankOpenAt`)를 조회
   * 상태 변경 후 Queue에 등록
 
 * **Consumer Thread 2개**
@@ -212,55 +212,38 @@ feat/delayed-transfer
 ## 11. 커밋 컨벤션
 
 ### feat
-
-새로운 기능 추가
-
-* ex) `feat: 지연 이체 스케줄러 구현`
+새로운 기능 추가</br>
+ex) `feat: 지연 이체 스케줄러 구현`
 
 ### refactor
-
-코드 리팩토링
-
-* ex) `refactor: Transfer 상태 변경 로직 개선`
+코드 리팩토링</br>
+ex) `refactor: Transfer 상태 변경 로직 개선`
 
 ### bug
-
-버그 수정
-
-* ex) `bug: interrupt 처리 누락으로 인한 스레드 종료 문제 수정`
+버그 수정</br>
+ex) `bug: interrupt 처리 누락으로 인한 스레드 종료 문제 수정`
 
 ### docs
-
-문서 수정
-
-* ex) `docs: README 업데이트`
+문서 수정</br>
+ex) `docs: README 업데이트`
 
 ### test
-
-테스트 코드 추가/수정
-
-* ex) `test: UserLockManager 동시성 테스트 추가`
+테스트 코드 추가/수정</br>
+ex) `test: UserLockManager 동시성 테스트 추가`
 
 ### build
-
-빌드 설정 변경
-
-* ex) `build: jar 실행 설정 추가`
+빌드 설정 변경</br>
+ex) `build: jar 실행 설정 추가`
 
 ### ci
-
-CI 설정 변경
-
-* ex) `ci: GitHub Actions 설정 추가`
+CI 설정 변경</br>
+ex) `ci: GitHub Actions 설정 추가`
 
 ### chore
-
-기타 변경
-
-* ex) `chore: 불필요한 로그 제거`
+기타 변경</br>
+ex) `chore: 불필요한 로그 제거`
 
 ### style
 
-코드 스타일 변경
-
-* ex) `style: 코드 포맷팅 적용`
+코드 스타일 변경</br>
+ex) `style: 코드 포맷팅 적용`
