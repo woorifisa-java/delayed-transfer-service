@@ -1,6 +1,7 @@
 package delayed_transfer_service;
 
 import consumer.TransferConsumer;
+import consumer.TransferConsumerRequeuing;
 import lock.SimpleUserLockManager;
 import lock.UserLockManager;
 import queue.TransferQueue;
@@ -63,6 +64,11 @@ public class Main {
 		Thread consumer1 = new Thread(new TransferConsumer("consumer-1", queue, lockManager), GREEN + "consumer-1" + RESET);
 		Thread consumer2 = new Thread(new TransferConsumer("consumer-2", queue, lockManager), PURPLE + "consumer-2" + RESET);
 
+		// ------ 컨슈머 2개 시작 (requeuing) ------
+//		Thread consumer1 = new Thread(new TransferConsumerRequeuing("consumer-1", queue, lockManager), GREEN + "consumer-1" + RESET);
+//		Thread consumer2 = new Thread(new TransferConsumerRequeuing("consumer-2", queue, lockManager), PURPLE + "consumer-2" + RESET);
+
+		
 		consumer1.start();
 		consumer2.start();
 
