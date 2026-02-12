@@ -22,7 +22,7 @@ public class TransferQueue {
 		try {
 			transfer = queue.take();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			return null;
 		}
 		
 		return transfer;

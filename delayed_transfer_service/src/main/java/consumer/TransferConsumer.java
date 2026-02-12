@@ -25,6 +25,11 @@ public class TransferConsumer implements Runnable {
 			try {
 				// 1. 큐에서 작업 가져오기
 				Transfer transfer = queue.take();
+
+				if (transfer == null) {
+					break;
+				}
+
 				Long userId = transfer.getUserId();
 
 				// 2. user 단위 lock 시도
@@ -40,7 +45,12 @@ public class TransferConsumer implements Runnable {
 					// 3. 실행
 					System.out.printf("[%s] T%d(%s) 실행 시작%n", name, transfer.getTransferId(), userId);
 
-					simulateTransfer();
+					try {
+						simulateTransfer();
+					} catch (InterruptedException e) {
+						break; // 종료
+					}
+					
 					transfer.markDone();
 
 					System.out.printf("[%s] T%d(%s) DONE%n", name, transfer.getTransferId(), userId);
