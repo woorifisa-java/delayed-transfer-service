@@ -11,6 +11,7 @@ import lock.UserLockManager;
 /**
  * Queue에서 Transfer를 꺼내 실행하는 Consumer (userId 단위 "대기" 락)
  */
+
 public class TransferConsumer implements Runnable {
 	private static final Logger log = LoggerFactory.getLogger(TransferConsumer.class);
 
