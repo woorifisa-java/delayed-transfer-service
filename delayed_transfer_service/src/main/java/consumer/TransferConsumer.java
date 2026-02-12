@@ -52,6 +52,11 @@ public class TransferConsumer implements Runnable {
                 // 2) user 단위 lock
                 //    먼저 즉시 시도해서 "대기 발생 여부"를 판별
                 locked = lockManager.tryLock(userId);
+                
+                if (locked) {
+                	log.info("거래 {} (고객 {}) userLock 획득",
+                			transfer.getTransferId(), userId);
+                }
 
                 if (!locked) {
                     // 진짜로 "이미 누가 잡고 있어서 기다려야 하는 상황"에서만 찍힘
@@ -60,15 +65,15 @@ public class TransferConsumer implements Runnable {
 
                     // 여기서 블로킹(대기). 대기가 끝나 lock을 얻으면 다음으로 진행
                     lockManager.lock(userId);
+                    log.info("거래 {} (고객 {}) userLock 획득",
+                			transfer.getTransferId(), userId);
                     locked = true;
                 }
 
-                log.info("거래 {} (고객 {}) userLock 획득",
-                        transfer.getTransferId(), userId);
 
                 try {
                     // 3) 실행
-                    log.info("거래 {} 실행 시작", transfer.getTransferId());
+                    log.info("거래 {} (고객 {}) 실행 시작", transfer.getTransferId(), userId);
 
                     simulateTransfer();
                     transfer.markDone();
