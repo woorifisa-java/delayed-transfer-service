@@ -12,19 +12,19 @@ Java 멀티스레드 환경에서 발생할 수 있는 동기화 문제와
 ## 1. 전체 아키텍처 흐름
 
 ```
-Main (사용자)
+Main (시나리오 생성)
     ↓
-TransferCreator (이체 요청 생성)
+TransferCreator (거래 생성 + Repository 저장)
     ↓
 TransferRepository (DB 역할)
     ↓
-TransferScheduler (주기적 실행 대상 스캔)
+TransferScheduler (주기적 실행 대상 스캔, 상태 변경(DELAYED -> PREPARING) 후 Queue 등록)
     ↓
 TransferQueue (BlockingQueue)
     ↓
-TransferConsumer (멀티 스레드 실행)
+TransferConsumer (멀티 스레드 실행, 상태 변경(PREPARING -> DONE))
     ↓
-UserLockManager (유저 단위 락 제어)
+UserLockManager (userId 단위 락 획득/해제)
 ```
 
 ---
@@ -179,11 +179,19 @@ lockManager.tryLock(userId);
 
 ## 8. 실행 방법
 
-```
+### 요구사항
+- Java 17
+
+### 실행
+1) GitHub Releases에서 `delayed-transfer-service.jar` 다운로드
+
+2) 실행
+```bash
 java -jar delayed-transfer-service.jar
 ```
 
-또는 IDE에서 `Main` 클래스 실행
+또는 .jar 없이 IDE에서 `Main` 클래스 실행
+
 
 ---
 
