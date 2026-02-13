@@ -72,7 +72,7 @@ UserLockManager (userId 단위 락 획득/해제)
 1. 사용자들이 지연 이체 요청을 등록한다.
 2. 모든 요청은 DELAYED 상태로 TransferRepository에 저장된다.
 3. 스케줄러는 0.2초마다 반복 실행되며, `now >= bankOpenAt`인 이체를 찾는다.
-4. 실행 가능한 이체를 찾으면, 해당 이체의 상태를 DELAYED → PREPARING으로 바꾼 뒤 Queue에 넣는다.
+4. 실행 가능한 이체를 찾으면, 해당 이체의 상태를 DELAYED -> PREPARING으로 바꾼 뒤 Queue에 넣는다.
 5. Consumer 2개가 동시에 실행을 시작한다.
 6. 동일 userId의 이체는 Lock을 통해 동시에 실행되지 않도록 제어한다.
 7. 실행이 완료되면 상태를 `DONE`으로 변경하고 Lock을 해제한다.
@@ -102,11 +102,12 @@ DONE
 ### 문제 상황 1 – 같은 거래를 두 Consumer가 동시에 실행
 
 Consumer는 여러 스레드로 실행되며 동시에 Queue에서 이체 요청을 가져온다.
+
 이때 Queue가 thread-safe하지 않은 자료구조(예: ArrayList, LinkedList)였다면, 다음과 같은 문제가 발생할 수 있다.
 
 ```
-Consumer-1: userB의 거래 조회 → status == PREPARING 확인
-Consumer-2: userB의 거래 조회 → status == PREPARING 확인
+Consumer-1: userB의 거래 조회 -> status == PREPARING 확인
+Consumer-2: userB의 거래 조회 -> status == PREPARING 확인
 ```
 
 두 스레드가 동시에 같은 거래를 확인하고 실행하면
@@ -115,8 +116,7 @@ Consumer-2: userB의 거래 조회 → status == PREPARING 확인
 ### 문제 상황 2 – 같은 유저의 여러 거래가 동시에 실행
 이 시스템은 Consumer를 2개 이상 실행하여 Queue에 들어온 이체 요청을 병렬 처리한다.
 
-이때 Queue에는 서로 다른 유저 요청뿐 아니라,
-같은 유저(userId)의 요청이 여러 개 들어올 수 있다.
+이때 Queue에는 서로 다른 유저 요청뿐 아니라, 같은 유저(userId)의 요청이 여러 개 들어올 수 있다.
 
 ```
 userA: 3건
@@ -171,7 +171,6 @@ lockManager.tryLock(userId);
 
 | 제어 단계         | 목적              |
 | ------------- | --------------- |
-| synchronized  | 동일 이체 상태 변경 보호  |
 | BlockingQueue | 작업 분배 보호        |
 | ReentrantLock | 동일 사용자 동시 실행 방지 |
 
